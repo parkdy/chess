@@ -1,5 +1,5 @@
 class Piece
-  attr_accessor :position, :board
+  attr_accessor :position, :board, :color
 
   CARDINAL_DELTAS = [[ 1, 0], # Right
                      [-1, 0], # Left
@@ -10,18 +10,23 @@ class Piece
                      [ 1,-1], # UpRight
                      [-1, 1], # DownLeft
                      [-1,-1]] # UpLeft
+
+  def initialize(color, position, board)
+    @color = color
+    @position = position
+    @board = board
+  end
+
   def moves
-    raise NotImplementedError # Override in child
+    raise NotImplementedError.new("Override moves in child") # Override in child
   end
 
   def move(new_pos)
-    raise NotImplementedError # Override in child
+    raise NotImplementedError.new("Override move in child") # Override in child
   end
 end
 
 class SlidingPiece < Piece
-
-
   def moves
     # Given a position on the board, my allowed moves are
     # all the valid positions in the direction of move_dirs
@@ -31,17 +36,23 @@ class SlidingPiece < Piece
     deltas.each do |delta|
       pos = [self.position[0] + delta[0], self.position[1] + delta[1]]
 
-      until @board.occupied_at?(pos) || !@board.in_bounds?(pos)
+      # Add all empty spaces up to an occupied square
+      while self.board.in_bounds?(pos)
         moves << pos
         pos[0] += delta[0]
         pos[1] += delta[1]
+        break if self.board.occupied?(pos)
       end
+
+      # Add occupied square if it is an enemy (you can capture!)
+      moves << pos if self.board[pos].color != self.color
+    end
 
     moves
   end
 
   def move_dirs
-    raise NotImplementedError # Override in child
+    raise NotImplementedError("Override move_dirs in child") # Override in child
   end
 end
 
@@ -72,15 +83,17 @@ class SteppingPiece < Piece
     moves = []
 
     deltas.each do |delta|
-      unless @board.occupied_at?(pos) || !@board.in_bounds?(pos)
-        moves << [self.position[0] + delta[0], self.position[1] + delta[1]]
+      pos = [self.position[0] + delta[0], self.position[1] + delta[1]]
+      if self.board.in_bounds?(pos) && self.board[pos].color != self.color
+        moves << pos
+      end
     end
 
     moves
   end
 
   def move_dirs
-    raise NotImplementedError # Override in child
+    raise NotImplementedError("Override move_dirs in child") # Override in child
   end
 end
 
@@ -108,7 +121,41 @@ end
 
 
 class Pawn < Piece
-  # TO DO
+
+  def move(new_pos)
+  end
+
+  def moves
+    pos = self.position
+    moves = []
+
+    #change direction depending on color (+1 for black, -1 for white)
+    i = (self.color == :black ? 1 : -1)
+    start_row = (self.color == :black ? 1 : 6)
+
+    #pawn's basic move is advancing one position forward so
+    #long as it's not occupied
+    normal_move = [pos[0]+i,pos[1]]
+    if self.board[normal_move].nil? && self.board.in_bounds?(normal_move)
+      moves << normal_move
+    end
+
+    #pawn can move 2 squares from starting square
+    init_move = [pos[0] + (i*2), pos[1]]
+    if pos[0] == start_row && self.board[init_move].nil? # Initial position
+      moves << init_move
+    end
+
+    #pawn can only move diagonally one square if occupied by enemy piece
+    capture_moves = [[pos[0]+i, pos[1]+1], [pos[0]+i, pos[1]-1]]
+    capture_moves.each do |capture_move|
+      if !self.board[capture_move].nil? && self.board[capture_move].color != self.color
+        moves << capture_move
+      end
+    end
+
+    moves
+  end
 end
 
 
