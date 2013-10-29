@@ -20,10 +20,6 @@ class Piece
   def moves
     raise NotImplementedError.new("Override moves in child") # Override in child
   end
-
-  def move(new_pos)
-    raise NotImplementedError.new("Override move in child") # Override in child
-  end
 end
 
 class SlidingPiece < Piece
@@ -32,20 +28,26 @@ class SlidingPiece < Piece
     # all the valid positions in the direction of move_dirs
     moves = []
     deltas = move_dirs
+    # p "deltas: #{deltas}"
 
     deltas.each do |delta|
+      # p "delta: #{delta}"
       pos = [self.position[0] + delta[0], self.position[1] + delta[1]]
+      # p "first pos in direction: #{pos}"
 
       # Add all empty spaces up to an occupied square
-      while self.board.in_bounds?(pos)
+      while self.board.in_bounds?(pos) && self.board[pos].nil?
         moves << pos
-        pos[0] += delta[0]
-        pos[1] += delta[1]
-        break if self.board.occupied?(pos)
+        # p "moves is now: #{moves}"
+        pos = pos.dup
+        pos[0] = (pos[0] + delta[0])
+        pos[1] = (pos[1] + delta[1])
+        # p "pos: #{pos}"
+        #break unless self.board.in_bounds?(pos) && self.board[pos].nil?
       end
 
       # Add occupied square if it is an enemy (you can capture!)
-      moves << pos if self.board[pos].color != self.color
+      moves << pos if self.board.in_bounds?(pos) && !self.board[pos].nil? && self.board[pos].color != self.color
     end
 
     moves
@@ -84,7 +86,7 @@ class SteppingPiece < Piece
 
     deltas.each do |delta|
       pos = [self.position[0] + delta[0], self.position[1] + delta[1]]
-      if self.board.in_bounds?(pos) && self.board[pos].color != self.color
+      if self.board.in_bounds?(pos) && (self.board[pos].nil? || self.board[pos].color != self.color)
         moves << pos
       end
     end
@@ -122,9 +124,6 @@ end
 
 class Pawn < Piece
 
-  def move(new_pos)
-  end
-
   def moves
     pos = self.position
     moves = []
@@ -149,8 +148,8 @@ class Pawn < Piece
     #pawn can only move diagonally one square if occupied by enemy piece
     capture_moves = [[pos[0]+i, pos[1]+1], [pos[0]+i, pos[1]-1]]
     capture_moves.each do |capture_move|
-      if !self.board[capture_move].nil? && self.board[capture_move].color != self.color
-        moves << capture_move
+      if self.board.in_bounds?(capture_move) && !self.board[capture_move].nil?
+        moves << capture_move if self.board[capture_move].color != self.color
       end
     end
 

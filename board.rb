@@ -21,7 +21,13 @@ class Board
   end
 
   def [](pos)
+    raise ArgumentError.new("Position out of bounds") unless self.in_bounds?(pos)
     self.rows[pos[0]][pos[1]]
+  end
+
+  def []=(pos, val)
+    raise ArgumentError.new("Position out of bounds") unless self.in_bounds?(pos)
+    self.rows[pos[0]][pos[1]] = val
   end
 
   def in_bounds?(pos)
@@ -54,23 +60,61 @@ class Board
     end
   end
 
-  def check?(color)
+  def pieces(color)
+    pieces = []
+    self.rows.each do |row|
+      row.each do |square|
+        pieces << square if square.is_a?(Piece) && square.color == color
+      end
+    end
 
+    pieces
+  end
+
+  def checked?(color)
+    king = pieces(color).select { |piece| piece.is_a?(King) }[0]
+    king_pos = king.position
+
+    enemy = (color == :white ? :black : :white)
+    enemy_pieces = pieces(enemy)
+    enemy_pieces.each do |piece|
+      return true if piece.moves.include?(king_pos)
+    end
+
+    false
   end
 
   def move(start, finish)
+    unless self.in_bounds?(start) && self.in_bounds?(finish)
+      raise ArgumentError.new("Positions out of bounds")
+    end
 
+    raise ArgumentError.new("No piece to move") if self[start].nil?
+    piece = self[start]
+    unless piece.moves.include?(finish)
+      raise ArgumentError.new("Cannot move there!")
+    end
+
+    captured = self[finish]
+    if captured.is_a?(Piece)
+      puts "#{captured.color.to_s.capitalize} #{captured.class.to_s} has been captured!"
+    end
+
+    self[start] = nil
+    self[finish] = piece
+    piece.position = finish
+    puts "You moved #{piece.class.to_s} from #{start} to #{finish}"
   end
 
   def display
 
     # Row header
-    puts "    " + ('a'..'h').to_a.join('   ')
+    puts "    " + ('0'..'7').to_a.join('   ') # a to h
     puts "  " + "-"*33
 
     @rows.each_with_index do |row, row_idx|
       # Column header
-      print (8-row_idx).to_s + ' | '
+      print (row_idx).to_s + ' | ' #(8-row_idx)
 
       # Display square
       row.each do |square|
@@ -85,5 +129,4 @@ class Board
 
     nil
   end
-
 end
