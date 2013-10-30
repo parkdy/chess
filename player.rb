@@ -14,52 +14,91 @@ class Player
 end
 
 class HumanPlayer < Player
-  def translate_input(input)
-    col = input[0].ord - 'a'.ord
-    row = 8 - input[1].to_i
-    [row, col]
+
+  def valid_position_input?(input)
+    raise RuntimeError.new("Invalid input: Only 2 letters") unless input.length == 2
+    raise RuntimeError.new("Invalid input: File must be a-h") unless input[0].between?('a','h')
+    raise RuntimeError.new("Invalid input: Rank must be 1-8") unless input[1].between?('1','8')
+    true # if you got through the gauntlet
   end
 
-  # Returns array with start and finish positions
   def play_turn
-    begin
-      prompt_msg = "Enter position of piece to move: "
-      start_str = prompt(prompt_msg) do |input|
-        puts "Invalid input: only 2 letters" unless input.length == 2
-        puts "Invalid input: file must be a-h" unless input[0].between?('a','h')
-        puts "Invalid input: rank must be 1-8" unless input[1].between?('1','8')
-        valid = input.length == 2 && input[0].between?('a','h') && input[1].between?('1','8')
+    begin #start input
+      print "Enter position of piece to move: "
+      start_str = gets.chomp
 
-        start = translate_input(input)
-        unless !self.board[start].nil? && self.board[start].color == self.color #board class
-          puts "Invalid input: not your piece!"
-        end
-        valid &&= !self.board[start].nil? && self.board[start].color == self.color
-      end
+      valid_position_input?(start_str)
       start = translate_input(start_str)
 
-      prompt_msg = "Enter destination of piece: "
-      finish_str = prompt(prompt_msg) do |input|
-        puts "Invalid input: only 2 letters" unless input.length == 2
-        puts "Invalid input: file must be a-h" unless input[0].between?('a','h')
-        puts "Invalid input: rank must be 1-8" unless input[1].between?('1','8')
+      piece = self.board[start]
 
-        valid = input.length == 2 && input[0].between?('a','h') && input[1].between?('1','8')
+      if piece.nil? #start square can't be a nil piece
+        raise RuntimeError.new("Invalid input: Not a piece.")
       end
 
-      finish = translate_input(finish_str)
-      piece = self.board[start]
-      captured = self.board.move(start, finish)
+      unless piece.color == self.color #is the player's color,
+        raise RuntimeError.new("Invalid input: Piece is not your color.")
+      end
 
-   rescue
-      puts "Invalid move"
+      unless piece.valid_moves.any? # is a piece that can move.
+        raise RuntimeError.new("Invalid input: Piece has no valid moves.")
+      end
+
+
+    rescue RuntimeError => e
+      puts e.message
       retry
     end
+
+    begin #destination input
+      print "Enter destination of piece: "
+      finish_str = gets.chomp
+
+      valid_position_input?(finish_str)
+      finish = translate_input(finish_str)
+
+      #if end_pos is in moves-list for piece.
+
+      unless self.board[start].valid_moves.include?(finish) #valid move?
+        raise RuntimeError.new("Invalid input: Piece cannot go there.")
+      end
+
+    rescue RuntimeError => e
+      puts e.message
+      retry
+    end
+
+    captured = self.board[finish]
+    self.board.move(start, finish) # Ok, move can actually occur.
+
     if captured.is_a?(Piece)
       puts "#{captured.color.to_s.capitalize} #{captured.class.to_s} has been captured!"
     end
 
     puts "You moved #{piece.class.to_s} from #{start_str} to #{finish_str}"
+  end
+
+  def promo_choice
+    begin
+      puts "Your pawn has reached the far side! You may promote it to a: "
+      puts "Queen (Q), Rook (R), Bishop (B), or Knight (N)."
+      print "Select a piece: "
+      input = gets.chomp.upcase
+      raise RuntimeError.new("Invalid choice.") unless %w[Q R B N].include?(input)
+    rescue RuntimeError => e
+      puts e.message
+      retry
+    end
+
+    piece_choice = { 'Q'=> Queen, 'R' => Rook, 'B' => Bishop, 'N' => Knight }
+    return piece_choice[input]
+  end
+
+  private
+  def translate_input(input)
+    col = input[0].ord - 'a'.ord
+    row = 8 - input[1].to_i
+    [row, col]
   end
 
 end

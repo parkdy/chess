@@ -142,21 +142,35 @@ class Board
       raise ArgumentError.new("Cannot move there!")
     end
 
-    captured = self[finish]
-
     move!(start, finish)
+  end
 
-    captured
+  def pawn_to_be_promoted
+    8.times do |col|
+      self.rows[0].each do |sqr|
+        return sqr if sqr.is_a?(Pawn) && sqr.color == :white
+      end
+      self.rows[7].each do |sqr|
+        return sqr if sqr.is_a?(Pawn) && sqr.color == :white
+      end
+    end
+    nil
+  end
+
+  def promote(pawn, color, piece_class)
+    pos = pawn.position
+    self[pos] = piece_class.new(color, pos, self)
   end
 
   def display
     # Row header
-    puts "   " + ('a'..'h').to_a.join('  ') # a to h
-    # puts "   " + "-"*25
+    puts ("    " + ('a'..'h').to_a.join('  ') + "    ").colorize(:color => :light_white,
+                                                                 :background => :black)
 
     @rows.each_with_index do |row, row_idx|
       # Column header
-      print (8-row_idx).to_s + ' ' #(8-row_idx)
+      print (' ' + (8-row_idx).to_s + ' ').colorize(:color => :light_white,
+                                                    :background => :black)
 
       # Display square
       row.each_with_index do |square, col_idx|
@@ -166,16 +180,23 @@ class Board
         else
           char = " " + DISPLAY_CHARS[square.color][square.class] + " "
         end
-        char = char.colorize(:background => :light_cyan) if (row_idx + col_idx) % 2 == 1
+        if (row_idx + col_idx) % 2 == 1
+          char = char.colorize(:background => :cyan)
+        else
+          char = char.colorize(:background => :light_white)
+        end
+
         print char
       end
 
-      print ' ' + (8-row_idx).to_s #(8-row_idx)
+      print (' ' + (8-row_idx).to_s + ' ').colorize(:color => :light_white,
+                                                    :background => :black)
       puts
-      #puts "\n  " + "-"*33
+
     end
 
-    puts "   " + ('a'..'h').to_a.join('  ') # a to h
+    puts ("    " + ('a'..'h').to_a.join('  ') + "    ").colorize(:color => :light_white,
+                                                                 :background => :black)
 
     nil
   end

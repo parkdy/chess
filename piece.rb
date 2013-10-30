@@ -31,6 +31,10 @@ class Piece
     moves.select { |move| !move_into_check?(move) }
   end
 
+  def valid_move?(start,finish)
+    #to do, possibly help refactor HumanPlayer class
+  end
+
   private
   def moves
     raise NotImplementedError.new("Override moves in child") # Override in child
