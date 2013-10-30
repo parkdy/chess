@@ -17,6 +17,7 @@ class Piece
     @board = board
   end
 
+  private
   def moves
     raise NotImplementedError.new("Override moves in child") # Override in child
   end
@@ -53,6 +54,7 @@ class SlidingPiece < Piece
     moves
   end
 
+  private
   def move_dirs
     raise NotImplementedError("Override move_dirs in child") # Override in child
   end
@@ -60,18 +62,21 @@ end
 
 
 class Queen < SlidingPiece
+  private
   def move_dirs
     CARDINAL_DELTAS + DIAGONAL_DELTAS
   end
 end
 
 class Rook < SlidingPiece
+  private
   def move_dirs
     CARDINAL_DELTAS
   end
 end
 
 class Bishop < SlidingPiece
+  private
   def move_dirs
     DIAGONAL_DELTAS
   end
@@ -94,6 +99,7 @@ class SteppingPiece < Piece
     moves
   end
 
+  private
   def move_dirs
     raise NotImplementedError("Override move_dirs in child") # Override in child
   end
@@ -109,12 +115,15 @@ class Knight < SteppingPiece
                      [ 1,-2],
                      [-1, 2],
                      [-1,-2]]
+
+  private
   def move_dirs
     KNIGHT_DELTAS
   end
 end
 
 class King < SteppingPiece
+  private
   def move_dirs
     CARDINAL_DELTAS + DIAGONAL_DELTAS
   end
