@@ -18,6 +18,7 @@ class Piece
   end
 
 
+
   def dup(board = self.board)
     return self.class.new(self.color, self.position, board)
   end
@@ -81,6 +82,12 @@ class Queen < SlidingPiece
   def move_dirs
     CARDINAL_DELTAS + DIAGONAL_DELTAS
   end
+
+
+  def to_s
+
+  end
+
 end
 
 class Rook < SlidingPiece

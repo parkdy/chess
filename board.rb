@@ -1,24 +1,31 @@
+# encoding: UTF-8
 require './piece'
 require 'debugger'
+
+
+# ♚
 
 class Board
   attr_accessor :rows
 
-  DISPLAY_CHARS = { white: {King   => "\u2654".encode('utf-8'),
-                            Queen  => "\u2655".encode('utf-8'),
-                            Rook   => "\u2656".encode('utf-8'),
-                            Bishop => "\u2657".encode('utf-8'),
-                            Knight => "\u2658".encode('utf-8'),
-                            Pawn   => "\u2659".encode('utf-8') },
-                    black: {King   => "\u265A".encode('utf-8'),
-                            Queen  => "\u265B".encode('utf-8'),
-                            Rook   => "\u265C".encode('utf-8'),
-                            Bishop => "\u265D".encode('utf-8'),
-                            Knight => "\u265E".encode('utf-8'),
-                            Pawn   => "\u265F".encode('utf-8') } }
+  DISPLAY_CHARS = { white: {King   => '♔',
+                            Queen  => '♕',
+                            Rook   => '♖',
+                            Bishop => '♗',
+                            Knight => '♘',
+                            Pawn   => '♙' },
+                    black: {King   => '♚',
+                            Queen  => '♛',
+                            Rook   => '♜',
+                            Bishop => '♝',
+                            Knight => '♞',
+                            Pawn   => '♟' } }
   def initialize
     @rows = Array.new(8) { Array.new(8) }
   end
+
+  #def to_s
+
 
   def dup
     duplicate = Board.new
@@ -54,6 +61,8 @@ class Board
     row, col = pos
     row.between?(0,7) && col.between?(0,7)
   end
+
+  #set_pieces refactor
 
   def set_pieces
     # Black pawns
@@ -91,13 +100,17 @@ class Board
     pieces
   end
 
+  # Did player with color 'color' win?
   def checkmate?(color)
-    self.pieces(color).each do |piece|
+    opponent = ( color == :black ? :white : :black )
+
+    self.pieces(opponent).each do |piece|
       return false if piece.valid_moves.any?
     end
     true
   end
 
+  # color is in check
   def checked?(color)
     king = pieces(color).select { |piece| piece.is_a?(King) }[0]
     king_pos = king.position
@@ -130,23 +143,20 @@ class Board
     end
 
     captured = self[finish]
-    if captured.is_a?(Piece)
-      puts "#{captured.color.to_s.capitalize} #{captured.class.to_s} has been captured!"
-    end
 
     move!(start, finish)
 
-    puts "You moved #{piece.class.to_s} from #{start} to #{finish}"
+    captured
   end
 
   def display
     # Row header
-    puts "    " + ('0'..'7').to_a.join('   ') # a to h
+    puts "    " + ('a'..'h').to_a.join('   ') # a to h
     puts "  " + "-"*33
 
     @rows.each_with_index do |row, row_idx|
       # Column header
-      print (row_idx).to_s + ' | ' #(8-row_idx)
+      print (8-row_idx).to_s + ' | ' #(8-row_idx)
 
       # Display square
       row.each do |square|
