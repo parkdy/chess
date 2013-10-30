@@ -1,5 +1,5 @@
 class Piece
-  attr_accessor :position, :board, :color
+  attr_accessor :color, :position, :board
 
   CARDINAL_DELTAS = [[ 1, 0], # Right
                      [-1, 0], # Left
@@ -15,6 +15,21 @@ class Piece
     @color = color
     @position = position
     @board = board
+  end
+
+
+  def dup(board = self.board)
+    return self.class.new(self.color, self.position, board)
+  end
+
+  def move_into_check?(pos)
+    dup_board = self.board.dup
+    dup_board.move!(self.position, pos)
+    dup_board.checked?(self.color)
+  end
+
+  def valid_moves
+    moves.select { |move| !move_into_check?(move) }
   end
 
   private

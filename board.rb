@@ -1,4 +1,5 @@
 require './piece'
+require 'debugger'
 
 class Board
   attr_accessor :rows
@@ -17,16 +18,35 @@ class Board
                             Pawn   => "\u265F".encode('utf-8') } }
   def initialize
     @rows = Array.new(8) { Array.new(8) }
-    set_pieces
+  end
+
+  def dup
+    duplicate = Board.new
+
+    self.rows.each_with_index do |row,row_num|
+      row.each_with_index do |square, col_num|
+        if square.nil?
+          duplicate[[row_num, col_num]] = nil
+        else
+          duplicate[[row_num, col_num]] = square.dup(duplicate)
+        end
+      end
+    end
+
+    duplicate
   end
 
   def [](pos)
-    raise ArgumentError.new("Position out of bounds") unless self.in_bounds?(pos)
+    unless self.in_bounds?(pos)
+      raise ArgumentError.new("Position out of bounds")
+    end
     self.rows[pos[0]][pos[1]]
   end
 
   def []=(pos, val)
-    raise ArgumentError.new("Position out of bounds") unless self.in_bounds?(pos)
+    unless self.in_bounds?(pos)
+      raise ArgumentError.new("Position out of bounds")
+    end
     self.rows[pos[0]][pos[1]] = val
   end
 
@@ -71,6 +91,13 @@ class Board
     pieces
   end
 
+  def checkmate?(color)
+    self.pieces(color).each do |piece|
+      return false if piece.valid_moves.any?
+    end
+    true
+  end
+
   def checked?(color)
     king = pieces(color).select { |piece| piece.is_a?(King) }[0]
     king_pos = king.position
@@ -84,6 +111,13 @@ class Board
     false
   end
 
+  def move!(start, finish)
+    piece = self[start]
+    self[start] = nil
+    self[finish] = piece
+    piece.position = finish
+  end
+
   def move(start, finish)
     unless self.in_bounds?(start) && self.in_bounds?(finish)
       raise ArgumentError.new("Positions out of bounds")
@@ -91,7 +125,7 @@ class Board
 
     raise ArgumentError.new("No piece to move") if self[start].nil?
     piece = self[start]
-    unless piece.moves.include?(finish)
+    unless piece.valid_moves.include?(finish)
       raise ArgumentError.new("Cannot move there!")
     end
 
@@ -100,15 +134,12 @@ class Board
       puts "#{captured.color.to_s.capitalize} #{captured.class.to_s} has been captured!"
     end
 
-    self[start] = nil
-    self[finish] = piece
-    piece.position = finish
+    move!(start, finish)
+
     puts "You moved #{piece.class.to_s} from #{start} to #{finish}"
   end
 
   def display
-    #this should woork...
-
     # Row header
     puts "    " + ('0'..'7').to_a.join('   ') # a to h
     puts "  " + "-"*33
