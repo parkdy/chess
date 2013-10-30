@@ -1,5 +1,3 @@
-require './prompt'
-
 class Player
   attr_accessor :color, :board
 

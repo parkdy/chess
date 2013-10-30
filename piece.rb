@@ -47,22 +47,16 @@ class SlidingPiece < Piece
     # all the valid positions in the direction of move_dirs
     moves = []
     deltas = move_dirs
-    # p "deltas: #{deltas}"
 
     deltas.each do |delta|
-      # p "delta: #{delta}"
       pos = [self.position[0] + delta[0], self.position[1] + delta[1]]
-      # p "first pos in direction: #{pos}"
 
       # Add all empty spaces up to an occupied square
       while self.board.in_bounds?(pos) && self.board[pos].nil?
         moves << pos
-        # p "moves is now: #{moves}"
         pos = pos.dup
         pos[0] = (pos[0] + delta[0])
         pos[1] = (pos[1] + delta[1])
-        # p "pos: #{pos}"
-        #break unless self.board.in_bounds?(pos) && self.board[pos].nil?
       end
 
       # Add occupied square if it is an enemy (you can capture!)
