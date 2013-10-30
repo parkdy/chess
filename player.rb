@@ -20,21 +20,9 @@ class HumanPlayer < Player
     [row, col]
   end
 
-  def reverse_trans(pos)
-    row, col = pos
-
-    file = (col + 'a'.ord).chr
-    rank = (8 - row).to_s
-
-    file + rank
-  end
-
   # Returns array with start and finish positions
   def play_turn
-
     begin
-
-
       prompt_msg = "Enter position of piece to move: "
       start_str = prompt(prompt_msg) do |input|
         puts "Invalid input: only 2 letters" unless input.length == 2
@@ -43,7 +31,7 @@ class HumanPlayer < Player
         valid = input.length == 2 && input[0].between?('a','h') && input[1].between?('1','8')
 
         start = translate_input(input)
-        unless !self.board[start].nil? && self.board[start].color == self.color
+        unless !self.board[start].nil? && self.board[start].color == self.color #board class
           puts "Invalid input: not your piece!"
         end
         valid &&= !self.board[start].nil? && self.board[start].color == self.color
@@ -57,16 +45,13 @@ class HumanPlayer < Player
         puts "Invalid input: rank must be 1-8" unless input[1].between?('1','8')
 
         valid = input.length == 2 && input[0].between?('a','h') && input[1].between?('1','8')
-
       end
 
       finish = translate_input(finish_str)
-
       piece = self.board[start]
-
       captured = self.board.move(start, finish)
 
-    rescue
+   rescue
       puts "Invalid move"
       retry
     end
@@ -74,7 +59,7 @@ class HumanPlayer < Player
       puts "#{captured.color.to_s.capitalize} #{captured.class.to_s} has been captured!"
     end
 
-    puts "You moved #{piece.class.to_s} from #{reverse_trans(start)} to #{reverse_trans(finish)}"
+    puts "You moved #{piece.class.to_s} from #{start_str} to #{finish_str}"
   end
 
 end

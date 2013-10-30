@@ -1,7 +1,7 @@
 # encoding: UTF-8
 require './piece'
 require 'debugger'
-
+require 'colorize'
 
 # ♚
 
@@ -151,23 +151,31 @@ class Board
 
   def display
     # Row header
-    puts "    " + ('a'..'h').to_a.join('   ') # a to h
-    puts "  " + "-"*33
+    puts "   " + ('a'..'h').to_a.join('  ') # a to h
+    # puts "   " + "-"*25
 
     @rows.each_with_index do |row, row_idx|
       # Column header
-      print (8-row_idx).to_s + ' | ' #(8-row_idx)
+      print (8-row_idx).to_s + ' ' #(8-row_idx)
 
       # Display square
-      row.each do |square|
+      row.each_with_index do |square, col_idx|
+        char = " "
         if square.nil?
-          print "  | "
+          char = "   "
         else
-          print DISPLAY_CHARS[square.color][square.class] + ' | '
+          char = " " + DISPLAY_CHARS[square.color][square.class] + " "
         end
+        char = char.colorize(:background => :light_cyan) if (row_idx + col_idx) % 2 == 1
+        print char
       end
-      puts "\n  " + "-"*33
+
+      print ' ' + (8-row_idx).to_s #(8-row_idx)
+      puts
+      #puts "\n  " + "-"*33
     end
+
+    puts "   " + ('a'..'h').to_a.join('  ') # a to h
 
     nil
   end

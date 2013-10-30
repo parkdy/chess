@@ -17,8 +17,6 @@ class Piece
     @board = board
   end
 
-
-
   def dup(board = self.board)
     return self.class.new(self.color, self.position, board)
   end
