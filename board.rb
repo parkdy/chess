@@ -107,6 +107,7 @@ class Board
   end
 
   def display
+    #this should woork...
 
     # Row header
     puts "    " + ('0'..'7').to_a.join('   ') # a to h
