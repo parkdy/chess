@@ -1,24 +1,28 @@
 class Player
   attr_accessor :color, :board
 
+
   def initialize(color, board)
     @color = color
     @board = board
   end
+
 
   def display
     #To do
   end
 end
 
-class HumanPlayer < Player
 
+
+class HumanPlayer < Player
   def valid_position_input?(input)
     raise RuntimeError.new("Invalid input: Only 2 letters") unless input.length == 2
     raise RuntimeError.new("Invalid input: File must be a-h") unless input[0].between?('a','h')
     raise RuntimeError.new("Invalid input: Rank must be 1-8") unless input[1].between?('1','8')
     true # if you got through the gauntlet
   end
+
 
   def play_turn
     begin #start input
@@ -76,6 +80,7 @@ class HumanPlayer < Player
     puts "You moved #{piece.class.to_s} from #{start_str} to #{finish_str}"
   end
 
+
   def promo_choice
     begin
       puts "Your pawn has reached the far side! You may promote it to a: "
@@ -91,6 +96,7 @@ class HumanPlayer < Player
     piece_choice = { 'Q'=> Queen, 'R' => Rook, 'B' => Bishop, 'N' => Knight }
     return piece_choice[input]
   end
+  
 
   private
   def translate_input(input)

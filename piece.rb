@@ -1,6 +1,7 @@
 class Piece
   attr_accessor :color, :position, :board
 
+
   CARDINAL_DELTAS = [[ 1, 0], # Right
                      [-1, 0], # Left
                      [ 0, 1], # Down
@@ -11,15 +12,18 @@ class Piece
                      [-1, 1], # DownLeft
                      [-1,-1]] # UpLeft
 
+
   def initialize(color, position, board)
     @color = color
     @position = position
     @board = board
   end
 
+
   def dup(board = self.board)
     return self.class.new(self.color, self.position, board)
   end
+
 
   def move_into_check?(pos)
     dup_board = self.board.dup
@@ -27,19 +31,24 @@ class Piece
     dup_board.checked?(self.color)
   end
 
+
   def valid_moves
     moves.select { |move| !move_into_check?(move) }
   end
 
+
   def valid_move?(start,finish)
     #to do, possibly help refactor HumanPlayer class
   end
+
 
   private
   def moves
     raise NotImplementedError.new("Override moves in child") # Override in child
   end
 end
+
+
 
 class SlidingPiece < Piece
   def moves
@@ -66,6 +75,7 @@ class SlidingPiece < Piece
     moves
   end
 
+
   private
   def move_dirs
     raise NotImplementedError("Override move_dirs in child") # Override in child
@@ -78,13 +88,9 @@ class Queen < SlidingPiece
   def move_dirs
     CARDINAL_DELTAS + DIAGONAL_DELTAS
   end
-
-
-  def to_s
-
-  end
-
 end
+
+
 
 class Rook < SlidingPiece
   private
@@ -92,6 +98,8 @@ class Rook < SlidingPiece
     CARDINAL_DELTAS
   end
 end
+
+
 
 class Bishop < SlidingPiece
   private
@@ -117,11 +125,14 @@ class SteppingPiece < Piece
     moves
   end
 
+
   private
   def move_dirs
     raise NotImplementedError("Override move_dirs in child") # Override in child
   end
 end
+
+
 
 class Knight < SteppingPiece
 
@@ -134,11 +145,14 @@ class Knight < SteppingPiece
                      [-1, 2],
                      [-1,-2]]
 
+
   private
   def move_dirs
     KNIGHT_DELTAS
   end
 end
+
+
 
 class King < SteppingPiece
   private
@@ -150,7 +164,6 @@ end
 
 
 class Pawn < Piece
-
   def moves
     pos = self.position
     moves = []
@@ -183,8 +196,3 @@ class Pawn < Piece
     moves
   end
 end
-
-
-
-
-

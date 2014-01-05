@@ -1,12 +1,12 @@
 # encoding: UTF-8
 require './piece'
-require 'debugger'
 require 'colorize'
 
-# ♚
+
 
 class Board
   attr_accessor :rows
+  
 
   DISPLAY_CHARS = { white: {King   => '♔',
                             Queen  => '♕',
@@ -20,11 +20,11 @@ class Board
                             Bishop => '♝',
                             Knight => '♞',
                             Pawn   => '♟' } }
+
+
   def initialize
     @rows = Array.new(8) { Array.new(8) }
   end
-
-  #def to_s
 
 
   def dup
@@ -43,12 +43,14 @@ class Board
     duplicate
   end
 
+
   def [](pos)
     unless self.in_bounds?(pos)
       raise ArgumentError.new("Position out of bounds")
     end
     self.rows[pos[0]][pos[1]]
   end
+
 
   def []=(pos, val)
     unless self.in_bounds?(pos)
@@ -57,12 +59,12 @@ class Board
     self.rows[pos[0]][pos[1]] = val
   end
 
+
   def in_bounds?(pos)
     row, col = pos
     row.between?(0,7) && col.between?(0,7)
   end
 
-  #set_pieces refactor
 
   def set_pieces
     # Black pawns
@@ -89,6 +91,7 @@ class Board
     end
   end
 
+
   def pieces(color)
     pieces = []
     self.rows.each do |row|
@@ -100,6 +103,7 @@ class Board
     pieces
   end
 
+
   # Did player with color 'color' win?
   def checkmate?(color)
     opponent = ( color == :black ? :white : :black )
@@ -109,6 +113,7 @@ class Board
     end
     true
   end
+
 
   # color is in check
   def checked?(color)
@@ -124,12 +129,14 @@ class Board
     false
   end
 
+
   def move!(start, finish)
     piece = self[start]
     self[start] = nil
     self[finish] = piece
     piece.position = finish
   end
+
 
   def move(start, finish)
     unless self.in_bounds?(start) && self.in_bounds?(finish)
@@ -145,6 +152,7 @@ class Board
     move!(start, finish)
   end
 
+
   def pawn_to_be_promoted
     8.times do |col|
       self.rows[0].each do |sqr|
@@ -157,10 +165,12 @@ class Board
     nil
   end
 
+
   def promote(pawn, color, piece_class)
     pos = pawn.position
     self[pos] = piece_class.new(color, pos, self)
   end
+
 
   def display
     # Row header

@@ -2,14 +2,18 @@ require "./board"
 require "./piece"
 require "./player"
 
+
+
 class Game
   attr_accessor :board, :players
+
 
   def initialize
     @board = Board.new
     @board.set_pieces
     @players = [ HumanPlayer.new(:white, @board), HumanPlayer.new(:black, @board) ]
   end
+
 
   def play
     game_over = false
@@ -39,6 +43,8 @@ class Game
     self.board.display
   end
 end
+
+
 
 if $PROGRAM_NAME == __FILE__
   Game.new.play
